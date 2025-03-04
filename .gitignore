@@ -1,0 +1,4 @@
+*.jar
+*.properties
+**/bin/
+**/obj/
