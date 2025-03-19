@@ -2,3 +2,4 @@
 *.properties
 **/bin/
 **/obj/
+*api    
