@@ -1,0 +1,10 @@
+{
+	"name": "Dimitri",
+	"version": "X.X.X",
+	"authors": ["Andrew"],
+	"description": "Brigorsky Dimitri Valskovich",
+	"homepage": "",
+	"countryCodes": ["id"],
+	"platform": ".Net 6.0",
+	"programmingLang": "C# 10.0"
+}

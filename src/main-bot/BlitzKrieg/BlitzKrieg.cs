@@ -3,19 +3,22 @@ using System.Drawing;
 using Robocode.TankRoyale.BotApi;
 using Robocode.TankRoyale.BotApi.Events;
 
-public class TemplateBot : Bot
+public class BlitzKrieg : Bot
 {   int turnDirection = 1;
+    int movementCounter = 0;
     bool movingForward;
     static void Main(string[] args)
     {
-        new TemplateBot().Start();
+        new BlitzKrieg().Start();
     }
 
-    TemplateBot() : base(BotInfo.FromFile("BlitzKrieg.json")) { }
+    BlitzKrieg() : base(BotInfo.FromFile("BlitzKrieg.json")) { }
     // * RUN
     public override void Run()
     {
-        /* Customize bot colors, read the documentation for more information */
+        AdjustRadarForBodyTurn = true;
+        AdjustGunForBodyTurn = true;
+        AdjustRadarForGunTurn = true;
         BodyColor = Color.Pink;
         TurretColor = Color.Black;
         RadarColor = Color.LightPink;
@@ -25,50 +28,54 @@ public class TemplateBot : Bot
 
         while (IsRunning)
         {
-            Forward(20 + Random.Shared.Next(90));
-            TurnLeft(Random.Shared.Next(50, 120));
+            TurnRadarRight(360);
         }
     }
 
     // * SCAN
     public override void OnScannedBot(ScannedBotEvent e)
     {
-        double distance = DistanceTo(e.X, e.Y);
-        double gunTurn = BearingTo(e.X, e.Y) - GunDirection;
-        var bearingFromGun = GunBearingTo(e.X, e.Y);
+        double targetX = e.X;
+        double targetY = e.Y;
+        double distance = DistanceTo(targetX, targetY);
+        var bearingFromGun = GunBearingTo(targetX, targetY);
 
 
-        TurnToFaceTarget(e.X, e.Y, e.Direction);
+        // ! MOVEMINT
+        if ((movementCounter+=1) % 10 == 0)
+        {
+            turnDirection = Random.Shared.Next(2) * 2 - 1;
+        }
+        SetForward(100 + Random.Shared.Next(60));
+        SetTurnLeft(40 * turnDirection);
+
+
+        // if (e.Energy < 20)
+        // {
+        //     TurnToFaceTarget(targetX, targetY, e.Direction);
+        // }
+        
         TurnGunLeft(bearingFromGun);
 
-        SetTurnGunRight(gunTurn);
-
-        // Firepower logic (Greedy for finishing weak enemies)
-        double firePower = Math.Min(3, Math.Max(0.1, 200 / distance));
-        if (e.Energy < 20) firePower = Math.Min(3, firePower + 0.5);
-
-        SmartFire(distance);
-        SetFire(firePower);
+        SmartShoot(Energy, distance);
+        SetRescan();
     }
     
-        // Console.WriteLine("I see a bot at " + e.X + ", " + e.Y);
-    
-    
+
+
     public override void OnHitBot(HitBotEvent e)
     {
-        // Console.WriteLine("Ouch! I hit a bot at " + e.X + ", " + e.Y);
     }
     public override void OnHitWall(HitWallEvent e)
     {
         ReverseDirection();
-        // Console.WriteLine("Ouch! I hit a wall, must turn back!");
     }
 
 
     // ? ADDITIONAL FUNCTIONS
-    private void TurnToFaceTarget(double x, double y, double Direction)
+    private void TurnToFaceTarget(double targetX, double targetY, double Direction)
     {
-        var bearing = BearingTo(x, y);
+        var bearing = BearingTo(targetX, targetY);
         if (Direction > 180 && Direction < 360){
             turnDirection = 1;
         }
@@ -91,14 +98,48 @@ public class TemplateBot : Bot
             movingForward = true;
         }
     }
-    private void SmartFire(double distance)
-    {
-        if (distance > 200 || Energy < 15)
-            Fire(1);
-        else if (distance > 50)
-            Fire(2);
-        else
-            Fire(3);
+
+    public void EnergyAdjustedShoot (double health){
+        if (health > 16)
+            SetFire(3);
+        else if (health > 10)
+            SetFire(2);
+        else if (health > 4)
+            SetFire(1);
+        else if (health > 2)
+            SetFire(.5);
+        else if (health > .4)
+            SetFire(.1);
     }
-    /* Read the documentation for more events and methods */
+
+        public void DistanceShoot(double distance)
+    {
+        if ( distance <= 300){
+            if(distance < 100){
+                SetFire(1.7);
+            }
+            else if ( distance <200){
+                SetFire(1.5);
+            }
+            else{
+                SetFire(1.2);
+            }
+        }
+        else{
+            SetFire(1);
+        }
+    }
+
+    public void SmartShoot(double health, double distance){
+        if (distance < 30){
+            EnergyAdjustedShoot(health);
+        }
+        if ( health < 20){
+            EnergyAdjustedShoot(health);
+        }
+        else{
+            DistanceShoot(distance);
+        }
+    }
 }
+
