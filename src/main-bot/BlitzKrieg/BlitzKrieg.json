@@ -1,8 +1,8 @@
 {
-	"name": "ADOLF",
-	"version": "(Blitzkrieg)",
-	"authors": ["andrewteja"],
-	"description": "apa gitu",
+	"name": "Adolf (Energy)",
+	"version": "2.0",
+	"authors": ["Andrew Tedjapratama"],
+	"description": "I am Adolf, with a greed for energy.",
 	"homepage": "",
 	"countryCodes": ["id"],
 	"platform": ".Net 6.0",
