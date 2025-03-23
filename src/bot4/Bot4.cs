@@ -4,8 +4,8 @@ using Robocode.TankRoyale.BotApi;
 using Robocode.TankRoyale.BotApi.Events;
 
 public class Bot4 : Bot
-{   
-    /* A bot that drives forward and backward, and fires a bullet */
+{   double lastEnemySpeed = 0;
+
     static void Main(string[] args){
         new Bot4().Start();
     }
@@ -14,7 +14,6 @@ public class Bot4 : Bot
 
     public override void Run()
     {
-        /* Customize bot colors, read the documentation for more information */
         BodyColor = Color.Pink;
 
         MoveToWall();
@@ -26,6 +25,7 @@ public class Bot4 : Bot
 
     public override void OnScannedBot(ScannedBotEvent e)
     {
+        lastEnemySpeed = e.Speed;
         double distance = DistanceTo(e.X, e.Y);
 
         if (distance <= 300){
@@ -40,10 +40,16 @@ public class Bot4 : Bot
 
     public override void OnHitBot(HitBotEvent e)
     {
-        if (e.Energy < 10){
+        double distance = DistanceTo(e.X, e.Y);
+
+        if (lastEnemySpeed < 2 && distance < 200){
+            AimAt(e.X, e.Y);
             Fire(3);
-        } else{
+        } else if (lastEnemySpeed > 4){
             Evade();
+        } else{
+            AimAt(e.X, e.Y);
+            FireSmart(distance);
         }
     }
 
@@ -83,5 +89,4 @@ public class Bot4 : Bot
         TurnRight(30);
         Forward(100);
     }
-    /* Read the documentation for more events and methods */
 }
