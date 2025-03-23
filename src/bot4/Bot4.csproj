@@ -2,7 +2,7 @@
   <PropertyGroup>
     <RootNamespace>Bot4</RootNamespace>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <LangVersion>10.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
