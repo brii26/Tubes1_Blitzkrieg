@@ -1,10 +1,10 @@
 {
-	"name": "Nazi",
+	"name": "Adolf",
 	"version": "1.0",
 	"authors": ["Andrew", "Brian", "Shanice"],
-	"description": "Greedy by Shooting Efficiency",
+	"description": "Greedy by Energy",
 	"homepage": "",
 	"countryCodes": ["id"],
-	"platform": ".Net 6.0",
+	"platform": ".Net 9.0",
 	"programmingLang": "C# 10.0"
 }

@@ -19,7 +19,7 @@ public class EnemyInfo
     }
 }
 
-public class BlitzKrieg4 : Bot
+public class GreedyBastard : Bot
 {   
     // Variabel target terbaik dan pengaturan radar
     private EnemyInfo bestTarget; // temporary variable untuk target dengan skor potensial terbesar tiap sweep radar, best target digunakan saat membutuhkan respons lebih cepat sebelum full sweep radar
@@ -28,10 +28,10 @@ public class BlitzKrieg4 : Bot
     private EnemyInfo[] tank_list;
 
     static void Main(string[] args){
-        new BlitzKrieg4().Start();
+        new GreedyBastard().Start();
     }
 
-    BlitzKrieg4() : base(BotInfo.FromFile("BlitzKrieg4.json")) {}
+    GreedyBastard() : base(BotInfo.FromFile("GreedyBastard.json")) {}
 
     public override void Run()
     {
@@ -39,7 +39,12 @@ public class BlitzKrieg4 : Bot
         AdjustRadarForBodyTurn = true;
         AdjustGunForBodyTurn = true;
         AdjustRadarForGunTurn = true;
-        BodyColor = Color.Purple;
+
+        BodyColor = Color.DarkSlateBlue;
+        TurretColor = Color.Indigo;
+        RadarColor = Color.MediumPurple;
+        BulletColor = Color.BlueViolet;
+        ScanColor = Color.LightBlue;
         
         tank_list = new EnemyInfo[1000]; // Tank list statik untuk menampung objek musuh
         
