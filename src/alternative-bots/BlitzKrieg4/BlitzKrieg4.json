@@ -1,0 +1,10 @@
+{
+	"name": "BlitzKrieg4",
+	"version": "1.0",
+	"authors": ["Andrew", "Brian", "Shanice"],
+	"description": "Bot using greedy algorithm based on potential points",
+	"homepage": "",
+	"countryCodes": ["id"],
+	"platform": ".Net 9.0",
+	"programmingLang": "C# 10.0"
+}
