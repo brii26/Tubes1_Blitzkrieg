@@ -1,0 +1,10 @@
+{
+	"name": "Greedypoint",
+	"version": "1.0",
+	"authors": ["Shanice", "Brian", "Andrew"],
+	"description": "apa gitu",
+	"homepage": "",
+	"countryCodes": ["id"],
+	"platform": ".Net 9.0",
+	"programmingLang": "C# 10.0"
+}

@@ -4,10 +4,12 @@ using Robocode.TankRoyale.BotApi;
 using Robocode.TankRoyale.BotApi.Events;
 
 public class BlitzKrieg : Bot
-{   int turnDirection = 1;
+{   
+    // Variabel global untuk movement
+    int turnDirection = 1;
     int movementCounter = 0;
     bool movingForward;
-    private const double energyAdvantageRatio = 1.6;
+    private const double energyAdvantageRatio = 1.6; // Rasio keunggulan energi
 
     static void Main(string[] args)
     {
@@ -15,12 +17,14 @@ public class BlitzKrieg : Bot
     }
 
     BlitzKrieg() : base(BotInfo.FromFile("BlitzKrieg.json")) { }
-    // * RUN
     public override void Run()
     {
+        // Konfigurasi independence untuk radar, gun, dan body tank
         AdjustRadarForBodyTurn = true;
         AdjustGunForBodyTurn = true;
         AdjustRadarForGunTurn = true;
+
+        // Color
         BodyColor = Color.Pink;
         TurretColor = Color.Black;
         RadarColor = Color.LightPink;
@@ -30,15 +34,14 @@ public class BlitzKrieg : Bot
 
         while (IsRunning)
         {
-            // Scanner default 360 derajats
-            TurnRadarRight(360);
+            TurnRadarRight(360); // Default behavior scanner -> putar 360 derajat
         }
     }
 
     // * SCAN
     public override void OnScannedBot(ScannedBotEvent e)
     {
-        // Inisialisasi variabel target, energy, jarak, dan bearing
+        // Data target, energy, jarak, dan bearing
         double targetX = e.X;
         double targetY = e.Y;
         double targetEnergy = e.Energy;
@@ -120,7 +123,7 @@ public class BlitzKrieg : Bot
                 SetFire(1.5);
             }
         } 
-        // Semakin menurunkan fire power ketika energy kita rendah, tetap memanfaatkan "lifesteal" sehingga tidak stop menembak ketika energy kita rendah
+        // Strategi penghematan energi saat energi rendah, tetap memanfaatkan seolah "lifesteal energy" dari tembakan
         else if (ourEnergy > 10) SetFire(1.5);
         else if (ourEnergy > 5) SetFire(1);
         else if (ourEnergy > 2) SetFire(0.5);
