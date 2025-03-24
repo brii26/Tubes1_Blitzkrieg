@@ -1,10 +1,10 @@
 {
-  "name": "BlietzKrieg",
+  "name": "Nazi",
   "version": "1.0",
   "authors": ["Shanice"
               ,"Brian"
               ,"Andrew"],
-  "description": "apa gitu",
+  "description": "Greedy by Shooting Efficiency",
   "homepage": "",
   "countryCodes": ["id"],
   "platform": ".Net 6.0",
