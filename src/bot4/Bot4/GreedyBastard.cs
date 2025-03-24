@@ -19,22 +19,19 @@ public class EnemyInfo
     }
 }
 
-public class Bot4 : Bot
+public class GreedyBastard : Bot
 {   
     // Variabel target terbaik dan pengaturan radar
-    private EnemyInfo bestTarget;
-    private int turn_radar = 1;
-    int turnDirection = 1;
+    private EnemyInfo bestTarget; // temporary variable untuk target dengan skor potensial terbesar tiap sweep radar, best target digunakan saat membutuhkan respons lebih cepat sebelum full sweep radar
+    private EnemyInfo lockedTarget; // target dengan skor potensial terbesar dalam list
 
     private EnemyInfo[] tank_list;
-    private EnemyInfo lockedTarget;
-    private EnemyInfo previousLockedTarget;
 
     static void Main(string[] args){
-        new Bot4().Start();
+        new GreedyBastard().Start();
     }
 
-    Bot4() : base(BotInfo.FromFile("Bot4.json")) {}
+    GreedyBastard() : base(BotInfo.FromFile("GreedyBastard.json")) {}
 
     public override void Run()
     {
@@ -43,10 +40,27 @@ public class Bot4 : Bot
         AdjustGunForBodyTurn = true;
         AdjustRadarForGunTurn = true;
         BodyColor = Color.Purple;
-
+        
+        tank_list = new EnemyInfo[1000]; // Tank list statik untuk menampung objek musuh
+        
         while (IsRunning){
-            // Default behavior scanner -> putar 360 derajat
-            TurnRadarRight(30);
+            // clear list tank sebelum scan
+            ClearList(ref tank_list);
+            
+            // Scan 360 derajat, lalu lock ke tank dengan prioritas potensial skor terbesar
+            TurnRadarRight(360);
+            lockedTarget = sortPriorityScorePotential(ref tank_list);
+            
+            // setelah radar sweep, attack target jika energi cukup, jika tidak maka fokus survival
+            if (lockedTarget != null) {
+                if (Energy < 10 && Energy < lockedTarget.HP) {
+                    evadeSurvival();
+                } else {
+                    AttackTarget(lockedTarget);
+                }
+            }
+            
+            TurnRadarRight(360);
         }
     }
 
@@ -62,17 +76,27 @@ public class Bot4 : Bot
 
         TurnGunLeft(bearingFromGun);
 
-        // Membuat objek musuh dan menghitung skor potensial musuh tersebut
+        // Membuat objek musuh dan compute skor potensial musuh tersebut
         EnemyInfo enemy = new EnemyInfo(targetX, targetY, targetEnergy, distance, direction);
         ComputeScorePotential(enemy);
+        
+        // Selama list masih ada space, tambah tank musuh ke list
+        if (EnemyInfo.NEFF < tank_list.Length) {
+            tank_list[EnemyInfo.NEFF] = enemy;
+            EnemyInfo.NEFF++;
+        }
+        
+        // Update lock target dan best target
+        if (lockedTarget != null){
+            lockedTarget = enemy;
+        }
 
-        // Memperbarui target terbaik dengan skor potensial terbesar
         if (bestTarget == null || enemy.ScorePotential > bestTarget.ScorePotential) {
             bestTarget = enemy;
         } 
 
         // Memprioritaskan poin dari survival jika energi rendah dan lebih rendah dari musuh
-        if (bestTarget != null) {
+        if (bestTarget != null && lockedTarget == null) {
             if (Energy < 10) {
                 if (Energy < bestTarget.HP) {
                     evadeSurvival();
@@ -81,7 +105,7 @@ public class Bot4 : Bot
                 AttackTarget(bestTarget);
             }
         }
-        turn_radar *= -1;
+        SetRescan();
     }
 
     public override void OnHitBot(HitBotEvent e)
@@ -119,16 +143,7 @@ public class Bot4 : Bot
             ramKillBonus = 0;
         }
 
-        double risk;
-        if (Energy < 20) {
-            risk = -50; // menjauhi pertarungan jika energi rendah
-        } else if (Energy > 40) {
-            risk = 10;  // lebih agresif ketika energi cukup
-        } else {
-            risk = 0;
-        }
-
-        enemy.ScorePotential = bulletDamage + ramDamage + bulletKillBonus + ramKillBonus + risk;
+        enemy.ScorePotential = bulletDamage + ramDamage + bulletKillBonus + ramKillBonus;
     }
 
     // Fungsi untuk clear list tank hasil scan tiap 360 rotation
@@ -141,9 +156,24 @@ public class Bot4 : Bot
     }
 
     // Fungsi greedy sorting by points
-    public EnemyInfo sortPriorityTankPoint(ref EnemyInfo[] list)
+    public EnemyInfo sortPriorityScorePotential(ref EnemyInfo[] list)
     {
-
+        if (EnemyInfo.NEFF <= 0)
+        {
+            return null;
+        }
+        
+        // Cari tank dengan skor potensial terbesar dalam list
+        EnemyInfo highestScoreTank = list[0];
+        for (int i = 1; i < EnemyInfo.NEFF; i++)
+        {
+            if (list[i].ScorePotential > highestScoreTank.ScorePotential)
+            {
+                highestScoreTank = list[i];
+            }
+        }
+        
+        return highestScoreTank;
     }
 
     // Fungsi untuk menyerang target yang dipilih
@@ -181,13 +211,6 @@ public class Bot4 : Bot
     private void TurnToFaceTarget(double targetX, double targetY, double Direction)
     {
         var bearing = BearingTo(targetX, targetY);
-        if (Direction > 180 && Direction < 360){
-            turnDirection = 1;
-        }
-        else if ( Direction < 180 && Direction > 0){
-            turnDirection = -1;
-        }
-
         TurnLeft(bearing);
     }
 
